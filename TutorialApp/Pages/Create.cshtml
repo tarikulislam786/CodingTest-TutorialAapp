@@ -1,0 +1,67 @@
+﻿@page
+@model CreateModel
+@using Microsoft.AspNetCore.Mvc.RazorPages;
+@using TutorialApp.Entity;
+@using Models;
+
+@{
+    ViewData["Title"] = "Create a Tutorial";
+}
+
+<h1 class="bg-info text-white">Create a Tutorial</h1>
+
+<div asp-validation-summary="All" class="text-danger"></div>
+<form method="post">
+    <div class="form-group">
+        <label asp-for="@Model.Tutorial.Title"></label>
+        <input type="text" asp-for="@Model.Tutorial.Title" class="form-control" />
+        <span asp-validation-for="@Model.Tutorial.Title" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="@Model.Tutorial.Description"></label>
+        <input type="text" asp-for="@Model.Tutorial.Description" class="form-control" />
+        <span asp-validation-for="@Model.Tutorial.Description" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="@Model.Tutorial.IsPublished"></label>
+        <input type="checkbox" asp-for="@Model.Tutorial.IsPublished" />
+        <span asp-validation-for="@Model.Tutorial.IsPublished" class="text-danger"></span>
+    </div>
+    <button type="submit" class="btn btn-primary">Create</button>
+</form>
+
+@functions{
+    public class CreateModel : PageModel
+    {
+        private readonly IRepository<Tutorial> repository;
+        public CreateModel(IRepository<Tutorial> repository)
+        {
+            this.repository = repository;
+        }
+
+        [BindProperty]
+        public Tutorial Tutorial { get; set; }
+
+        public IActionResult OnGet()
+        {
+            return Page();
+        }
+
+        //public async Task<IActionResult> OnPostAsync()
+        //{
+        //    if (ModelState.IsValid)
+        //        await repository.CreateAsync(Tutorial);
+        //    return RedirectToPage("Read");
+        //}
+        public async Task<IActionResult> OnPostAsync()
+        {
+            if (ModelState.IsValid)
+            {
+                await repository.CreateAsync(Tutorial);
+                return RedirectToPage("Read", new { id = 1 });
+            }
+            else
+                return Page();
+        }
+    }
+}

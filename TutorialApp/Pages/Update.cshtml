@@ -1,0 +1,69 @@
+﻿@page
+@model UpdateModel
+@using Microsoft.AspNetCore.Mvc.RazorPages;
+@using TutorialApp.Entity;
+@using Models;
+
+@{
+    ViewData["Title"] = "Update a Tutorial";
+}
+
+<h1 class="bg-info text-white">Update a Tutorial</h1>
+<a asp-page="Read" class="btn btn-secondary">View all Tutorials</a>
+
+<div asp-validation-summary="All" class="text-danger"></div>
+
+<form method="post">
+    <div class="form-group">
+        <label asp-for="tutorial.Id"></label>
+        <input type="text" asp-for="tutorial.Id" readonly class="form-control" />
+    </div>
+    <div class="form-group">
+        <label asp-for="tutorial.Title"></label>
+        <input type="text" asp-for="tutorial.Title" class="form-control" />
+        <span asp-validation-for="tutorial.Title" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="tutorial.Description"></label>
+        <input type="text" asp-for="tutorial.Description" class="form-control" />
+        <span asp-validation-for="tutorial.Description" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="tutorial.IsPublished"></label>
+        <input type="checkbox" asp-for="tutorial.IsPublished" />
+        <span asp-validation-for="tutorial.IsPublished" class="text-danger"></span>
+    </div>
+    <button type="submit" class="btn btn-primary">Update</button>
+</form>
+
+@functions{
+    public class UpdateModel : PageModel
+    {
+        private readonly IRepository<Tutorial> repository;
+        public UpdateModel(IRepository<Tutorial> repository)
+        {
+            this.repository = repository;
+        }
+
+        [BindProperty]
+        public Tutorial tutorial { get; set; }
+
+        public async Task<IActionResult> OnGet(int id)
+        {
+            tutorial = await repository.ReadAsync(id);
+            return Page();
+        }
+
+        public async Task<IActionResult> OnPostAsync()
+        {
+            if (ModelState.IsValid)
+            {
+                await repository.UpdateAsync(tutorial);
+
+                return RedirectToPage("Read", new { id = 1 });
+            }
+            else
+                return Page();
+        }
+    }
+}

@@ -1,0 +1,66 @@
+﻿@page
+@model SearchModel
+@using Microsoft.AspNetCore.Mvc.RazorPages;
+@using TutorialApp.Entity;
+@using System.Linq.Expressions;
+@using Models;
+@{
+    ViewData["Title"] = "Search Tutorials";
+}
+<h1 class="bg-info text-white">Tutorials</h1>
+<a asp-page="/Read" asp-route-id="1" class="btn btn-secondary">View all Tutorials</a>
+<form method="post">
+    <div class="form-group">
+        <label asp-for="@Model.tutorial.Title"></label>
+        <input type="text" asp-for="@Model.tutorial.Title" class="form-control" />
+    </div>
+    <button type="submit" class="btn btn-primary">Search</button>
+</form>
+
+@if (Model.tutorialList != null)
+{
+    <h2 class="bg-danger text-white m-2">Result</h2>
+    <table class="table table-sm table-bordered">
+        <tr>
+            <th>Id</th>
+            <th>Title</th>
+            <th>Description</th>
+            <th>Is Published</th>
+        </tr>
+        @foreach (Tutorial m in Model.tutorialList)
+        {
+        <tr>
+            <td>@m.Id</td>
+            <td>@m.Title</td>
+            <td>@m.Description</td>
+            <td>@m.IsPublished</td>
+        </tr>
+        }
+    </table>
+}
+@functions{
+    public class SearchModel : PageModel
+    {
+        private readonly IRepository<Tutorial> repository;
+        public SearchModel(IRepository<Tutorial> repository)
+        {
+            this.repository = repository;
+        }
+
+        [BindProperty]
+        public Tutorial tutorial { get; set; }
+
+        public List<Tutorial> tutorialList { get; set; }
+
+        public void OnGet()
+        {
+        }
+
+        public async Task<IActionResult> OnPostAsync()
+        {
+            Expression<Func<Tutorial, bool>> filter = m => m.Title == tutorial.Title;
+            tutorialList = await repository.ReadAllAsync(filter);
+            return Page();
+        }
+    }
+}
